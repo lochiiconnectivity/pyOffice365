@@ -81,7 +81,8 @@ class pyOffice365():
 			if type(data) != types.DictType:
 				print data
 				return None
-			rdata += data["value"]
+			if 'value' in data:
+				rdata += data["value"]
 			if data.has_key("odata.nextLink"):
 				skiptoken = self.__re_skiptoken.search(data["odata.nextLink"]).group(1)
 				querydata["$skiptoken"] = skiptoken
