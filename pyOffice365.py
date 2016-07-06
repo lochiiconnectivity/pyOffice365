@@ -172,11 +172,11 @@ class pyOffice365():
     def update_user(self, username, userdata):
         return self.__doreq__("users/%s@%s" % (username, self.domain), postdata=json.dumps(userdata), method='PATCH')
 
-    def assign_license(self, username, sku, remove = None):
+    def assign_license(self, username, sku, disabledplans=None, remove=None):
         postData = {
             "addLicenses": [
                 {
-                    "disabledPlans": [],
+                    "disabledPlans": disabledplans,
                     "skuId": sku,
                 }
             ],
