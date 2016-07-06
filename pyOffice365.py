@@ -135,18 +135,21 @@ class pyOffice365():
     def get_contracts(self):
         return self.__doreq__("contracts")
 
-    def get_users(self):
+    def get_users(self, user=None):
         querydata = {}
         rdata = []
 
         while True:
-            data = self.__doreq__("users", querydata=querydata)
+            users_path = "users/%s" % (user) if user else "users"
+            data = self.__doreq__(users_path, querydata=querydata)
             if type(data) != types.DictType:
                 print data
                 return None
-            if 'value' in data:
+            if 'userPrincipalName' in data:
+                rdata += [data]
+            elif 'value' in data:
                 rdata += data["value"]
-            if data.has_key("odata.nextLink"):
+            if 'odata.nextLink' in data:
                 skiptoken = self.__re_skiptoken.search(data["odata.nextLink"]).group(1)
                 querydata["$skiptoken"] = skiptoken
             else:
