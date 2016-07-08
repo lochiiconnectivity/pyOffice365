@@ -139,8 +139,15 @@ class pyOffice365():
         querydata = {}
         rdata = []
 
+        if user:
+            if '@' in user:
+                users_path = "users/%s" % (user)
+            else:
+                users_path = "users/%s@%s" % (user, self.domain)
+        else:
+            users_path = "users"
+
         while True:
-            users_path = "users/%s" % (user) if user else "users"
             data = self.__doreq__(users_path, querydata=querydata)
             if type(data) != types.DictType:
                 print data
@@ -163,14 +170,14 @@ class pyOffice365():
     def get_skus(self):
         return self.__doreq__("subscribedSkus")
 
-    def get_user(self, username):
-        return self.__doreq__("users/%s@%s" % (username, self.domain))
-    
     def create_user(self, userdata):
         return self.__doreq__("users", json.dumps(userdata))
 
     def update_user(self, username, userdata):
-        return self.__doreq__("users/%s@%s" % (username, self.domain), postdata=json.dumps(userdata), method='PATCH')
+        if '@' in username:
+            return self.__doreq__("users/%s" % (username), postdata=json.dumps(userdata), method='PATCH')
+        else:
+            return self.__doreq__("users/%s@%s" % (username, self.domain), postdata=json.dumps(userdata), method='PATCH')
 
     def assign_license(self, username, sku=None, disabledplans=None, remove=None):
         postData = {
@@ -183,4 +190,7 @@ class pyOffice365():
             "removeLicenses": remove,
         }
 
-        return self.__doreq__("users/%s@%s/assignLicense" % (username, self.domain), postdata=json.dumps(postData))
+        if '@' in username:
+            return self.__doreq__("users/%s/assignLicense" % (username), postdata=json.dumps(postData))
+        else:
+            return self.__doreq__("users/%s@%s/assignLicense" % (username, self.domain), postdata=json.dumps(postData))
