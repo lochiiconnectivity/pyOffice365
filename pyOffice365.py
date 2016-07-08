@@ -22,10 +22,10 @@ class pyOffice365():
         if debug:
             urllib2.install_opener(urllib2.build_opener(urllib2.HTTPSHandler(debuglevel=1)))
 
-    def login(self, user, passwd):
+    def login(self, user, passwd, resource='https://graph.windows.net'):
         postData = {
             "grant_type": "client_credentials",
-            "resource": "https://graph.windows.net",
+            "resource": resource,
             "client_id": "%s@%s" % (user, self.domain),
             "client_secret": passwd,
         }
