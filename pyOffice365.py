@@ -267,15 +267,9 @@ class pyOffice365():
             return self.__doreq__("users/%s@%s" % (username, self.__domain), postdata=json.dumps(userdata), method='PATCH')
 
     def assign_license(self, username, sku=None, disabledplans=None, remove=None):
-        postData = {
-            "addLicenses": [
-                {
-                    "disabledPlans": disabledplans,
-                    "skuId": sku,
-                }
-            ],
-            "removeLicenses": remove,
-        }
+        add = [{ "disabledPlans": disabledplans, "skuId": sku }] if sku else []
+        remove = [remove] if remove else []
+        postData = { "addLicenses": add, "removeLicenses": remove }
 
         if '@' in username:
             return self.__doreq__("users/%s/assignLicense" % (username), postdata=json.dumps(postData))
