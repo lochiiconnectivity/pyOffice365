@@ -199,6 +199,30 @@ class pyOffice365():
     def get_contracts(self):
         return self.__doreq__("contracts")
 
+    def get_subscriptions(self, tid=None):
+
+        querydata = {}
+        rdata = []
+
+        customer = self.__crest_get_customer__(tid=tid)
+
+        if customer:
+            subscriptions_path = "subscriptions"
+            querydata = {"recipient_customer_id": customer["id"]}
+            while True:
+                data = self.__crest_doreq__(subscriptions_path, querydata=querydata, token=None)
+                if type(data) != types.DictType:
+                    return None
+                if 'items' in data:
+                    rdata += [data]
+                if 'odata.nextLink' in data:
+                    skiptoken = self.__re_skiptoken.search(data["odata.nextLink"]).group(1)
+                    querydata["$skiptoken"] = skiptoken
+                else:
+                    break
+
+        return rdata
+
     def get_orders(self, tid=None):
 
         querydata = {}
