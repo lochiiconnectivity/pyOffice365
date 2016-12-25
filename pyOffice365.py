@@ -285,6 +285,10 @@ class pyOffice365():
     def get_customers(self):
         return self.__pcrest_doreq__("customers", querydata={'size': 950})
 
+    def get_orders(self, tid=None):
+        if tid is not None:
+            return self.__pcrest_doreq__("customers/%s/orders" % tid)
+
     ## TODO - REMOVE
     def get_contracts(self):
         return self.__doreq__("contracts")
