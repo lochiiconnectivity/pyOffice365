@@ -1,6 +1,6 @@
 # vim: ts=4:sw=4:sts=4:et
 
-import json
+import simplejson as json
 import re
 import types
 import urllib
@@ -13,29 +13,43 @@ class pyOffice365():
     __re_skiptoken = re.compile('.*\$skiptoken=([^&]*).*')
     __graph_api_endpoint = 'https://graph.windows.net'
     __graph_api_version = '1.5'
+    ## TODO - REMOVE
     __crest_api_endpoint = 'https://api.cp.microsoft.com'
+    ## TODO - REMOVE
     __crest_api_version = '2015-03-31'
+    __pcrest_api_endpoint = 'https://api.partnercenter.microsoft.com'
+    __pcrest_api_version = 'v1'
     __oauth2_api_endpoint = 'https://login.windows.net'
 
     def __init__(self, domain, debug_requests=False, debug_responses=False,
                  graph_api_endpoint=__graph_api_endpoint,
                  graph_api_version=__graph_api_version,
+                 ## TODO - REMOVE
                  crest_api_endpoint=__crest_api_endpoint,
+                 ## TODO - REMOVE
                  crest_api_version=__crest_api_version,
+                 pcrest_api_endpoint=__pcrest_api_endpoint,
+                 pcrest_api_version=__pcrest_api_version,
                  oauth_api_endpoint=__oauth2_api_endpoint):
 
         self.__debug_requests = debug_requests
         self.__debug_responses = debug_responses
         self.__graph_api_endpoint = graph_api_endpoint
         self.__graph_api_version = graph_api_version
+        ## TODO - REMOVE
         self.__crest_api_endpoint = crest_api_endpoint
+        ## TODO - REMOVE
         self.__crest_api_version = crest_api_version
         self.__oauth2_api_endpoint = oauth_api_endpoint
         self.__domain = domain
         self.__access_token = None
+        ## TODO - REMOVE
         self.__crest_sa_token = None
+        self.__pcrest_sa_token = None
         self.__customer_token = None
+        ## TODO - REMOVE
         self.__crest_reseller_id = None
+        ## TODO - REMOVE
         self.__crest_tenant_id = None
         self.__ms_tracking_id = uuid.uuid4()
 
@@ -63,6 +77,7 @@ class pyOffice365():
         if jdata.has_key("access_token"):
             self.__access_token =  jdata["access_token"]
 
+    ## TODO - REMOVE
     def crest_login(self):
         self.__crest_tenant_id = self.get_tenant()['value'][0]['objectId']
 
@@ -86,6 +101,18 @@ class pyOffice365():
         if jdata.has_key("id"):
             self.__crest_reseller_id =  jdata["id"]
 
+    def pcrest_login(self):
+        self.__pcrest_tenant_id = self.get_tenant()['value'][0]['objectId']
+
+        req = urllib2.Request("%s/generatetoken" % self.__pcrest_api_endpoint, 'grant_type=jwt_token', \
+            headers=self.__auth_header__(accept='application/json', content_type='application/x-www-form-urlencoded'))
+        u = urllib2.urlopen(req)
+        data = u.readlines()
+        if self.__debug_responses is True:
+            print data
+        jdata = json.loads('\n'.join(data))
+        if jdata.has_key("access_token"):
+            self.__pcrest_access_token =  jdata["access_token"]
 
     def __auth_header__(self, accept='application/json;odata=nometadata', content_type='application/json;odata=nometadata', authorization=None):
         if authorization is None:
@@ -98,6 +125,7 @@ class pyOffice365():
             "x-ms-tracking-id": self.__ms_tracking_id,
         }
 
+    ## TODO - REMOVE
     def __crest_auth_header__(self, accept='application/json;odata=nometadata', content_type='application/json;odata=nometadata', authorization=None):
         if authorization is None:
             authorization=self.__crest_sa_token
@@ -108,6 +136,25 @@ class pyOffice365():
             "Content-Type": content_type,
             "x-ms-correlation-id": uuid.uuid4(),
             "x-ms-tracking-id": self.__ms_tracking_id,
+        }
+
+    def __pcrest_auth_header__(self,
+                               accept='application/json;odata=nometadata',
+                               content_type=\
+                               'application/json;odata=nometadata',
+                               authorization=None, locale='en-US'):
+
+        if authorization is None:
+            authorization = self.__pcrest_access_token
+        return {
+            "Authorization": "Bearer %s" % (authorization),
+            "Accept": accept,
+            "Content-Type": content_type,
+            "MS-RequestId": uuid.uuid4(),
+            "MS-Contract-Version": "api-version: %s" %
+            self.__pcrest_api_version,
+            "MS-CorrelationId": uuid.uuid4(),
+            "X-Locale": locale
         }
 
     def __doreq__(self, command, postdata=None, querydata={}, method=None):
@@ -140,6 +187,44 @@ class pyOffice365():
             jdata = data
         return jdata
 
+    def __pcrest_doreq__(self, command, postdata=None, querydata={},
+                         method=None, token=None):
+        if self.__pcrest_sa_token is None:
+            self.pcrest_login()
+
+        req = urllib2.Request("%s/%s/%s?%s" % (self.__pcrest_api_endpoint,
+                              self.__pcrest_api_version, command,
+                              urllib.urlencode(querydata)), data=postdata,
+                              headers=self.__pcrest_auth_header__\
+                              (authorization=token))
+
+        if method is not None:
+            req.get_method = lambda: method
+
+        try:
+            u = urllib2.urlopen(req)
+        except urllib2.HTTPError, e:
+            data = e.readlines()
+            if self.__debug_responses is True:
+                print data
+            try:
+                jdata = json.loads('\n'.join(data))
+            except:
+                jdata = data
+            return jdata
+
+        data = u.readlines()
+        if self.__debug_responses is True:
+            print data
+
+        if "totalCount" in data[0]:
+            jdata = json.loads(data[0])
+        else:
+            jdata = json.loads('\n'.join(data))
+
+        return jdata
+
+    ## TODO - REMOVE
     def __crest_doreq__(self, command, postdata=None, querydata={}, method=None, resellerPath=True, token=None):
         if self.__crest_reseller_id is None:
             self.crest_login()
@@ -174,6 +259,7 @@ class pyOffice365():
             jdata = data
         return jdata
 
+    ## TODO - REMOVE
     def __crest_get_customer__(self, tid=None):
         if self.__crest_tenant_id is None:
             self.crest_login()
@@ -196,10 +282,15 @@ class pyOffice365():
     def get_tenant(self):
         return self.__doreq__("tenantDetails")
 
+    def get_customers(self):
+        return self.__pcrest_doreq__("customers", querydata={'size': 950})
+
+    ## TODO - REMOVE
     def get_contracts(self):
         return self.__doreq__("contracts")
 
-    def get_subscriptions(self, tid=None):
+    ## TODO - REMOVE
+    def get_crest_subscriptions(self, tid=None):
 
         querydata = {}
         rdata = []
@@ -223,7 +314,8 @@ class pyOffice365():
 
         return rdata
 
-    def get_orders(self, tid=None):
+    ## TODO - REMOVE
+    def get_crest_orders(self, tid=None):
 
         querydata = {}
         rdata = []
