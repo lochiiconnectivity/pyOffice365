@@ -13,10 +13,6 @@ class pyOffice365():
     __re_skiptoken = re.compile('.*\$skiptoken=([^&]*).*')
     __graph_api_endpoint = 'https://graph.windows.net'
     __graph_api_version = '1.5'
-    ## TODO - REMOVE
-    __crest_api_endpoint = 'https://api.cp.microsoft.com'
-    ## TODO - REMOVE
-    __crest_api_version = '2015-03-31'
     __pcrest_api_endpoint = 'https://api.partnercenter.microsoft.com'
     __pcrest_api_version = 'v1'
     __oauth2_api_endpoint = 'https://login.windows.net'
@@ -24,10 +20,6 @@ class pyOffice365():
     def __init__(self, domain, debug_requests=False, debug_responses=False,
                  graph_api_endpoint=__graph_api_endpoint,
                  graph_api_version=__graph_api_version,
-                 ## TODO - REMOVE
-                 crest_api_endpoint=__crest_api_endpoint,
-                 ## TODO - REMOVE
-                 crest_api_version=__crest_api_version,
                  pcrest_api_endpoint=__pcrest_api_endpoint,
                  pcrest_api_version=__pcrest_api_version,
                  oauth_api_endpoint=__oauth2_api_endpoint):
@@ -36,21 +28,11 @@ class pyOffice365():
         self.__debug_responses = debug_responses
         self.__graph_api_endpoint = graph_api_endpoint
         self.__graph_api_version = graph_api_version
-        ## TODO - REMOVE
-        self.__crest_api_endpoint = crest_api_endpoint
-        ## TODO - REMOVE
-        self.__crest_api_version = crest_api_version
         self.__oauth2_api_endpoint = oauth_api_endpoint
         self.__domain = domain
         self.__access_token = None
-        ## TODO - REMOVE
-        self.__crest_sa_token = None
         self.__pcrest_sa_token = None
         self.__customer_token = None
-        ## TODO - REMOVE
-        self.__crest_reseller_id = None
-        ## TODO - REMOVE
-        self.__crest_tenant_id = None
         self.__ms_tracking_id = uuid.uuid4()
 
         if debug_requests:
@@ -77,30 +59,6 @@ class pyOffice365():
         if jdata.has_key("access_token"):
             self.__access_token =  jdata["access_token"]
 
-    ## TODO - REMOVE
-    def crest_login(self):
-        self.__crest_tenant_id = self.get_tenant()['value'][0]['objectId']
-
-        req = urllib2.Request("%s/my-org/tokens" % self.__crest_api_endpoint, 'grant_type=client_credentials', \
-            headers=self.__auth_header__(accept='application/json', content_type='application/x-www-form-urlencoded'))
-        u = urllib2.urlopen(req)
-        data = u.readlines()
-        if self.__debug_responses is True:
-            print data
-        jdata = json.loads('\n'.join(data))
-        if jdata.has_key("access_token"):
-            self.__crest_sa_token =  jdata["access_token"]
-
-        req = urllib2.Request("%s/customers/get-by-identity?provider=AAD&type=tenant&tid=%s" % (self.__crest_api_endpoint, self.__crest_tenant_id) ,
-            headers=self.__crest_auth_header__(accept='application/json'))
-        u = urllib2.urlopen(req)
-        data = u.readlines()
-        if self.__debug_responses is True:
-            print data
-        jdata = json.loads('\n'.join(data))
-        if jdata.has_key("id"):
-            self.__crest_reseller_id =  jdata["id"]
-
     def pcrest_login(self):
         self.__pcrest_tenant_id = self.get_tenant()['value'][0]['objectId']
 
@@ -120,19 +78,6 @@ class pyOffice365():
         return {
             "Authorization": "Bearer %s" % (authorization),
             "Accept": accept, 
-            "Content-Type": content_type,
-            "x-ms-correlation-id": uuid.uuid4(),
-            "x-ms-tracking-id": self.__ms_tracking_id,
-        }
-
-    ## TODO - REMOVE
-    def __crest_auth_header__(self, accept='application/json;odata=nometadata', content_type='application/json;odata=nometadata', authorization=None):
-        if authorization is None:
-            authorization=self.__crest_sa_token
-        return {
-            "Authorization": "Bearer %s" % (authorization),
-            "Accept": accept, 
-            "api-version" : self.__crest_api_version,
             "Content-Type": content_type,
             "x-ms-correlation-id": uuid.uuid4(),
             "x-ms-tracking-id": self.__ms_tracking_id,
@@ -224,61 +169,6 @@ class pyOffice365():
 
         return jdata
 
-    ## TODO - REMOVE
-    def __crest_doreq__(self, command, postdata=None, querydata={}, method=None, resellerPath=True, token=None):
-        if self.__crest_reseller_id is None:
-            self.crest_login()
-
-        req = None
-        if resellerPath is True:
-            req = urllib2.Request("%s/%s/%s?%s" % (self.__crest_api_endpoint, self.__crest_reseller_id, command, urllib.urlencode(querydata)), data=postdata, headers=self.__crest_auth_header__(authorization=token))
-        else:
-            req = urllib2.Request("%s/%s?%s" % (self.__crest_api_endpoint, command, urllib.urlencode(querydata)), data=postdata, headers=self.__crest_auth_header__(authorization=token))
-
-        if method is not None:
-            req.get_method = lambda: method
-
-        try:
-            u = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
-            data = e.readlines()
-            if self.__debug_responses is True:
-                print data
-            try:
-                jdata = json.loads('\n'.join(data))
-            except:
-                jdata = data
-            return jdata
-
-        data = u.readlines()
-        if self.__debug_responses is True:
-            print data
-        try:
-            jdata = json.loads('\n'.join(data))
-        except:
-            jdata = data
-        return jdata
-
-    ## TODO - REMOVE
-    def __crest_get_customer__(self, tid=None):
-        if self.__crest_tenant_id is None:
-            self.crest_login()
-
-        customer = self.__crest_doreq__("customers/get-by-identity", querydata={"provider": "AAD", "type": "external_group", "tid": tid, "etid": self.__crest_tenant_id}, resellerPath=False)
-
-        if customer:
-            req = urllib2.Request("%s/%s/tokens" % (self.__crest_api_endpoint, customer["id"]), 'grant_type=client_credentials', \
-                headers=self.__auth_header__(accept='application/json', content_type='application/x-www-form-urlencoded'))
-            u = urllib2.urlopen(req)
-            data = u.readlines()
-            if self.__debug_responses is True:
-                print data
-            jdata = json.loads('\n'.join(data))
-            if jdata.has_key("access_token"):
-                self.__customer_token = jdata["access_token"]
-            
-        return customer
-
     def get_tenant(self):
         return self.__doreq__("tenantDetails")
 
@@ -288,61 +178,42 @@ class pyOffice365():
     def get_orders(self, tid=None):
         if tid is not None:
             return self.__pcrest_doreq__("customers/%s/orders" % tid)
+        else:
+            raise ValueError('get_orders requires tid')
 
-    ## TODO - REMOVE
-    def get_contracts(self):
-        return self.__doreq__("contracts")
+    def get_subscription(self, tid=None, sid=None):
+        if tid is not None and sid is not None:
+            return self.__pcrest_doreq__("customers/%s/subscriptions/%s" %
+                                         (tid, sid))
+        else:
+            raise ValueError('get_subscription requires tid and sid')
 
-    ## TODO - REMOVE
-    def get_crest_subscriptions(self, tid=None):
+    def get_subscription_addons(self, tid=None, sid=None):
+        if tid is not None and sid is not None:
+            return self.__pcrest_doreq__\
+                   ("customers/%s/subscriptions/%s/addons" %
+                    (tid, sid))
+        else:
+            raise ValueError('get_subscription_addons requires tid and sid')
 
-        querydata = {}
-        rdata = []
+    def update_subscription_quantity(self, tid=None, sid=None, quantity=0):
 
-        customer = self.__crest_get_customer__(tid=tid)
+        if quantity < 1 or quantity > 9999:
+            raise ValueError('update_subscription_quantity requires \
+                quantity between 1 and 9999')
 
-        if customer:
-            subscriptions_path = "subscriptions"
-            querydata = {"recipient_customer_id": customer["id"]}
-            while True:
-                data = self.__crest_doreq__(subscriptions_path, querydata=querydata, token=None)
-                if type(data) != types.DictType:
-                    return None
-                if 'items' in data:
-                    rdata += [data]
-                if 'odata.nextLink' in data:
-                    skiptoken = self.__re_skiptoken.search(data["odata.nextLink"]).group(1)
-                    querydata["$skiptoken"] = skiptoken
-                else:
-                    break
+        if tid is not None and sid is not None:
+            subscription = self.get_subscription(tid=tid, sid=sid)
+            if subscription is not None:
+                subscription["quantity"] = quantity
+                return self.__pcrest_doreq__("customers/%s/subscriptions/%s" %
+                                             (tid, sid),
+                                             postdata=json.dumps(subscription),
+                                             method='PATCH')
+        else:
+            raise ValueError('update_subscription_quantity \
+                              requires tid and sid')
 
-        return rdata
-
-    ## TODO - REMOVE
-    def get_crest_orders(self, tid=None):
-
-        querydata = {}
-        rdata = []
-
-        customer = self.__crest_get_customer__(tid=tid)
-    
-        if customer:
-            orders_path = "orders"
-            querydata = {"recipient_customer_id": customer["id"]}
-            while True:
-                data = self.__crest_doreq__(orders_path, querydata=querydata, token=None)
-                if type(data) != types.DictType:
-                    return None
-                if 'items' in data:
-                    rdata += [data]
-                if 'odata.nextLink' in data:
-                    skiptoken = self.__re_skiptoken.search(data["odata.nextLink"]).group(1)
-                    querydata["$skiptoken"] = skiptoken
-                else:
-                    break
-
-        return rdata
-        
     def get_users(self, user=None):
         querydata = {}
         rdata = []
