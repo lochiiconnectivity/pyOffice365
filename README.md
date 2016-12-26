@@ -1,3 +1,4 @@
+python module for managing an Office365 tenant via Graph API and Customer orders via Partner Center REST API
 
 Updated to use version 0.9
 
