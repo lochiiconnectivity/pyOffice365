@@ -2,7 +2,6 @@
 
 import simplejson as json
 import re
-import types
 import urllib
 import urllib2
 import uuid
@@ -36,7 +35,8 @@ class pyOffice365():
         self.__ms_tracking_id = uuid.uuid4()
 
         if debug_requests:
-            urllib2.install_opener(urllib2.build_opener(urllib2.HTTPSHandler(debuglevel=1)))
+            urllib2.install_opener(urllib2.build_opener(
+                                   urllib2.HTTPSHandler(debuglevel=1)))
 
     def graph_login(self, user, passwd, resource=None):
         if resource is None:
@@ -50,34 +50,43 @@ class pyOffice365():
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        req = urllib2.Request("%s/%s/oauth2/token?api-version=1.0" % (self.__oauth2_api_endpoint, self.__domain), urllib.urlencode(postData), headers)
+        req = urllib2.Request("%s/%s/oauth2/token?api-version=1.0" %
+                              (self.__oauth2_api_endpoint, self.__domain),
+                              urllib.urlencode(postData), headers)
         u = urllib2.urlopen(req)
         data = u.readlines()
         if self.__debug_responses is True:
-            print data
+            print(data)
         jdata = json.loads('\n'.join(data))
-        if jdata.has_key("access_token"):
-            self.__access_token =  jdata["access_token"]
+        if "access_token" in jdata:
+            self.__access_token = jdata["access_token"]
 
     def pcrest_login(self):
         self.__pcrest_tenant_id = self.get_tenant()['value'][0]['objectId']
 
-        req = urllib2.Request("%s/generatetoken" % self.__pcrest_api_endpoint, 'grant_type=jwt_token', \
-            headers=self.__auth_header__(accept='application/json', content_type='application/x-www-form-urlencoded'))
+        req = urllib2.Request("%s/generatetoken" %
+                              self.__pcrest_api_endpoint,
+                              'grant_type=jwt_token',
+                              headers=self.__auth_header__(
+                                      accept='application/json',
+                                      content_type='application/\
+                                      x-www-form-urlencoded'))
         u = urllib2.urlopen(req)
         data = u.readlines()
         if self.__debug_responses is True:
-            print data
+            print(data)
         jdata = json.loads('\n'.join(data))
-        if jdata.has_key("access_token"):
-            self.__pcrest_access_token =  jdata["access_token"]
+        if "access_token" in jdata:
+            self.__pcrest_access_token = jdata["access_token"]
 
-    def __auth_header__(self, accept='application/json;odata=nometadata', content_type='application/json;odata=nometadata', authorization=None):
+    def __auth_header__(self, accept='application/json;odata=nometadata',
+                        content_type='application/json;odata=nometadata',
+                        authorization=None):
         if authorization is None:
-            authorization=self.__access_token
+            authorization = self.__access_token
         return {
             "Authorization": "Bearer %s" % (authorization),
-            "Accept": accept, 
+            "Accept": accept,
             "Content-Type": content_type,
             "x-ms-correlation-id": uuid.uuid4(),
             "x-ms-tracking-id": self.__ms_tracking_id,
@@ -85,8 +94,8 @@ class pyOffice365():
 
     def __pcrest_auth_header__(self,
                                accept='application/json;odata=nometadata',
-                               content_type=\
-                               'application/json;odata=nometadata',
+                               content_type='application/json;\
+                                             odata=nometadata',
                                authorization=None, locale='en-US'):
 
         if authorization is None:
@@ -104,18 +113,21 @@ class pyOffice365():
 
     def __doreq__(self, command, postdata=None, querydata={}, method=None):
         querydata['api-version'] = self.__graph_api_version
-        
-        req = urllib2.Request("%s/%s/%s?%s" % (self.__graph_api_endpoint, self.__domain, command, urllib.urlencode(querydata)), data=postdata, headers=self.__auth_header__())
+
+        req = urllib2.Request("%s/%s/%s?%s" % (self.__graph_api_endpoint,
+                              self.__domain, command,
+                              urllib.urlencode(querydata)),
+                              data=postdata, headers=self.__auth_header__())
 
         if method is not None:
             req.get_method = lambda: method
 
         try:
             u = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             data = e.readlines()
             if self.__debug_responses is True:
-                print data
+                print(data)
             try:
                 jdata = json.loads('\n'.join(data))
             except:
@@ -124,7 +136,7 @@ class pyOffice365():
 
         data = u.readlines()
         if self.__debug_responses is True:
-            print data
+            print(data)
 
         try:
             jdata = json.loads('\n'.join(data))
@@ -148,10 +160,10 @@ class pyOffice365():
 
         try:
             u = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             data = e.readlines()
             if self.__debug_responses is True:
-                print data
+                print(data)
             try:
                 jdata = json.loads('\n'.join(data))
             except:
@@ -160,7 +172,7 @@ class pyOffice365():
 
         data = u.readlines()
         if self.__debug_responses is True:
-            print data
+            print(data)
 
         if "totalCount" in data[0]:
             jdata = json.loads(data[0])
@@ -190,8 +202,8 @@ class pyOffice365():
 
     def get_subscription_addons(self, tid=None, sid=None):
         if tid is not None and sid is not None:
-            return self.__pcrest_doreq__\
-                   ("customers/%s/subscriptions/%s/addons" %
+            return self.__pcrest_doreq__(
+                    "customers/%s/subscriptions/%s/addons" %
                     (tid, sid))
         else:
             raise ValueError('get_subscription_addons requires tid and sid')
@@ -228,14 +240,15 @@ class pyOffice365():
 
         while True:
             data = self.__doreq__(users_path, querydata=querydata)
-            if type(data) != types.DictType:
+            if isinstance(data, dict):
                 return None
             if 'userPrincipalName' in data:
                 rdata += [data]
             elif 'value' in data:
                 rdata += data["value"]
             if 'odata.nextLink' in data:
-                skiptoken = self.__re_skiptoken.search(data["odata.nextLink"]).group(1)
+                skiptoken = self.__re_skiptoken.search(
+                            data["odata.nextLink"]).group(1)
                 querydata["$skiptoken"] = skiptoken
             else:
                 break
@@ -253,16 +266,25 @@ class pyOffice365():
 
     def update_user(self, username, userdata):
         if '@' in username:
-            return self.__doreq__("users/%s" % (username), postdata=json.dumps(userdata), method='PATCH')
+            return self.__doreq__("users/%s" %
+                                  (username), postdata=json.dumps(userdata),
+                                  method='PATCH')
         else:
-            return self.__doreq__("users/%s@%s" % (username, self.__domain), postdata=json.dumps(userdata), method='PATCH')
+            return self.__doreq__("users/%s@%s" % (username, self.__domain),
+                                  postdata=json.dumps(userdata),
+                                  method='PATCH')
 
-    def assign_license(self, username, sku=None, disabledplans=None, remove=None):
-        add = [{ "disabledPlans": disabledplans, "skuId": sku }] if sku else []
+    def assign_license(self, username, sku=None,
+                       disabledplans=None, remove=None):
+
+        add = [{"disabledPlans": disabledplans, "skuId": sku}] if sku else []
         remove = [remove] if remove else []
-        postData = { "addLicenses": add, "removeLicenses": remove }
+        postData = {"addLicenses": add, "removeLicenses": remove}
 
         if '@' in username:
-            return self.__doreq__("users/%s/assignLicense" % (username), postdata=json.dumps(postData))
+            return self.__doreq__("users/%s/assignLicense" % (username),
+                                  postdata=json.dumps(postData))
         else:
-            return self.__doreq__("users/%s@%s/assignLicense" % (username, self.__domain), postdata=json.dumps(postData))
+            return self.__doreq__("users/%s@%s/assignLicense" %
+                                  (username, self.__domain),
+                                  postdata=json.dumps(postData))
