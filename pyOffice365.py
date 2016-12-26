@@ -152,8 +152,8 @@ class pyOffice365():
         req = urllib2.Request("%s/%s/%s?%s" % (self.__pcrest_api_endpoint,
                               self.__pcrest_api_version, command,
                               urllib.urlencode(querydata)), data=postdata,
-                              headers=self.__pcrest_auth_header__\
-                              (authorization=token))
+                              headers=self.__pcrest_auth_header__(
+                              authorization=token))
 
         if method is not None:
             req.get_method = lambda: method
