@@ -1,0 +1,52 @@
+{
+  "value": [
+    {
+      "companyLastDirSyncTime": "2015-12-27T19:56:28Z",
+      "street": "123 Any street",
+      "countryLetterCode": "US",
+      "objectType": "Company",
+      "city": "AnyTown",
+      "assignedPlans": [
+        {
+          "capabilityStatus": "Enabled",
+          "assignedTimestamp": "2016-11-21T11:28:23Z",
+          "servicePlanId": "36efa789-2507-4a29-8661-ab367fb19c59",
+          "service": "SimpleService"
+        }
+      ],
+      "objectId": "f44b3eab-7135-4849-85fe-183919f17c9f",
+      "preferredLanguage": "en",
+      "state": null,
+      "securityComplianceNotificationPhones": [],
+      "postalCode": "000000",
+      "technicalNotificationMails": [
+        "notifications@foo.com"
+      ],
+      "verifiedDomains": [
+        {
+          "name": "foo.com",
+          "default": false,
+          "initial": false,
+          "capabilities": "Email, OfficeCommunicationsOnline, OrgIdAuthentication, Intune",
+          "type": "Federated",
+          "id": "0239BE0D040209FC"
+        }
+      ],
+      "telephoneNumber": "+1 123 45678",
+      "displayName": "Foo Inc.",
+      "marketingNotificationEmails": [],
+      "provisionedPlans": [
+        {
+          "capabilityStatus": "Enabled",
+          "provisioningStatus": "Success",
+          "service": "exchange"
+        }
+      ],
+      "deletionTimestamp": null,
+      "country": null,
+      "provisioningErrors": [],
+      "securityComplianceNotificationMails": [],
+      "dirSyncEnabled": true
+    }
+  ]
+}

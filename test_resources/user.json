@@ -1,0 +1,68 @@
+{
+  "value": [
+    {
+      "objectType": "User",
+      "objectId": "e1da4ed3-dd50-452f-889c-128add900c3d",
+      "deletionTimestamp": null,
+      "accountEnabled": true,
+      "assignedLicenses": [
+        {
+          "disabledPlans": [],
+          "skuId": "41caa176-b2c2-49c7-b543-c3b49b2155f2"
+        }
+      ],
+      "assignedPlans": [
+        {
+          "assignedTimestamp": "2016-03-06T23:40:58Z",
+          "capabilityStatus": "Enabled",
+          "service": "exchange",
+          "servicePlanId": "0caa013a-87b9-44dc-bb57-c9ea1ec408a4"
+        }
+      ],
+      "city": null,
+      "companyName": null,
+      "country": null,
+      "creationType": null,
+      "department": null,
+      "dirSyncEnabled": null,
+      "displayName": "John Smith",
+      "facsimileTelephoneNumber": null,
+      "givenName": "John",
+      "immutableId": null,
+      "jobTitle": null,
+      "lastDirSyncTime": null,
+      "mail": "john.smith@foo.com",
+      "mailNickname": "john.smith",
+      "mobile": "+1 999 9999999",
+      "onPremisesSecurityIdentifier": null,
+      "otherMails": [
+        "john.smith@foo.com"
+      ],
+      "passwordPolicies": "None",
+      "passwordProfile": null,
+      "physicalDeliveryOfficeName": null,
+      "postalCode": null,
+      "preferredLanguage": "en-US",
+      "provisionedPlans": [
+        {
+          "capabilityStatus": "Enabled",
+          "provisioningStatus": "Success",
+          "service": "exchange"
+        }
+      ],
+      "provisioningErrors": [],
+      "proxyAddresses": [
+        "SMTP:john.smith@foo.com",
+        "SMTP:john.smith@test.onmicrosoft.com"
+      ],
+      "sipProxyAddress": "john.smith@foo.com",
+      "state": null,
+      "streetAddress": null,
+      "surname": "Smith",
+      "telephoneNumber": null,
+      "usageLocation": "US",
+      "userPrincipalName": "john.smith@foo.com",
+      "userType": "Member"
+    }
+  ]
+}

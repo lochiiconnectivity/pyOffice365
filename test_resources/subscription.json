@@ -1,0 +1,33 @@
+{
+  "id": "09155786-a2a0-46d6-8063-a44d07952018",
+  "offerId": "2c6c3a47-5974-48df-908e-a229e14bcd88",
+  "offerName": "Office 365 Enterprise E3",
+  "friendlyName": "Office 365 Enterprise E3",
+  "quantity": 2,
+  "unitType": "Licenses",
+  "creationDate": "2016-03-06T23:30:24.897Z",
+  "effectiveStartDate": "2016-03-06T00:00:00Z",
+  "commitmentEndDate": "2017-03-06T00:00:00Z",
+  "status": "active",
+  "autoRenewEnabled": true,
+  "billingType": "license",
+  "billingCycle": "monthly",
+  "contractType": "subscription",
+  "links": {
+    "offer": {
+      "uri": "/offers/2c6c3a47-5974-48df-908e-a229e14bcd88?country=US",
+      "method": "GET",
+      "headers": []
+    },
+    "self": {
+      "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/subscriptions/09155786-a2a0-46d6-8063-a44d07952018",
+      "method": "GET",
+      "headers": []
+    }
+  },
+  "orderId": "27601513-92E2-46C2-858F-A70D9F76918D",
+  "attributes": {
+    "etag": "686897696a7c876b7e",
+    "objectType": "Subscription"
+  }
+}

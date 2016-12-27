@@ -1,5 +1,0 @@
-simplejson
-re
-urllib
-urllib2
-uuid

@@ -2,9 +2,15 @@
 
 import simplejson as json
 import re
-import urllib
-import urllib2
+import sys
 import uuid
+
+if sys.version_info >= (3, 0):
+    import urllib.request as urllib2
+    import urllib.parse as urllib
+else:
+    import urllib2
+    import urllib
 
 
 class pyOffice365():
@@ -16,12 +22,16 @@ class pyOffice365():
     __pcrest_api_version = 'v1'
     __oauth2_api_endpoint = 'https://login.windows.net'
 
-    def __init__(self, domain, debug_requests=False, debug_responses=False,
+    def __init__(self, debug_requests=False, debug_responses=False,
+                 domain=None, appid=None, key=None, resource=None,
                  graph_api_endpoint=__graph_api_endpoint,
                  graph_api_version=__graph_api_version,
                  pcrest_api_endpoint=__pcrest_api_endpoint,
                  pcrest_api_version=__pcrest_api_version,
                  oauth_api_endpoint=__oauth2_api_endpoint):
+
+        if not domain or not appid or not key:
+            raise ValueError('Must provide domain, appid and key')
 
         self.__debug_requests = debug_requests
         self.__debug_responses = debug_responses
@@ -29,23 +39,28 @@ class pyOffice365():
         self.__graph_api_version = graph_api_version
         self.__oauth2_api_endpoint = oauth_api_endpoint
         self.__domain = domain
+        self.__appid = appid
+        self.__key = key
+        self.__resource = resource
         self.__access_token = None
-        self.__pcrest_sa_token = None
+        self.__pcrest_access_token = None
         self.__customer_token = None
         self.__ms_tracking_id = uuid.uuid4()
 
         if debug_requests:
             urllib2.install_opener(urllib2.build_opener(
-                                   urllib2.HTTPSHandler(debuglevel=1)))
+                           urllib2.HTTPSHandler(debuglevel=1)))
 
-    def graph_login(self, user, passwd, resource=None):
-        if resource is None:
-            resource = self.__graph_api_endpoint
+    def graph_login(self):
+
+        resource = self.__resource if self.__resource\
+                    else self.__graph_api_endpoint
+
         postData = {
             "grant_type": "client_credentials",
             "resource": resource,
-            "client_id": "%s@%s" % (user, self.__domain),
-            "client_secret": passwd,
+            "client_id": "%s@%s" % (self.__appid, self.__domain),
+            "client_secret": self.__key,
         }
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -60,6 +75,14 @@ class pyOffice365():
         jdata = json.loads('\n'.join(data))
         if "access_token" in jdata:
             self.__access_token = jdata["access_token"]
+        else:
+            raise ValueError('Can not find access token, unable to log in')
+
+    def get_access_token(self):
+        return self.__access_token
+
+    def get_pcrest_access_token(self):
+        return self.__pcrest_access_token
 
     def pcrest_login(self):
         self.__pcrest_tenant_id = self.get_tenant()['value'][0]['objectId']
@@ -68,9 +91,9 @@ class pyOffice365():
                               self.__pcrest_api_endpoint,
                               'grant_type=jwt_token',
                               headers=self.__auth_header__(
-                                      accept='application/json',
-                                      content_type='application/\
-                                      x-www-form-urlencoded'))
+                               accept='application/json',
+                               content_type='application/\
+                               x-www-form-urlencoded'))
         u = urllib2.urlopen(req)
         data = u.readlines()
         if self.__debug_responses is True:
@@ -114,6 +137,9 @@ class pyOffice365():
     def __doreq__(self, command, postdata=None, querydata={}, method=None):
         querydata['api-version'] = self.__graph_api_version
 
+        if self.__access_token is None:
+            self.graph_login()
+
         req = urllib2.Request("%s/%s/%s?%s" % (self.__graph_api_endpoint,
                               self.__domain, command,
                               urllib.urlencode(querydata)),
@@ -146,7 +172,7 @@ class pyOffice365():
 
     def __pcrest_doreq__(self, command, postdata=None, querydata={},
                          method=None, token=None):
-        if self.__pcrest_sa_token is None:
+        if self.__pcrest_access_token is None:
             self.pcrest_login()
 
         req = urllib2.Request("%s/%s/%s?%s" % (self.__pcrest_api_endpoint,
@@ -218,10 +244,15 @@ class pyOffice365():
             subscription = self.get_subscription(tid=tid, sid=sid)
             if subscription is not None:
                 subscription["quantity"] = quantity
-                return self.__pcrest_doreq__("customers/%s/subscriptions/%s" %
-                                             (tid, sid),
-                                             postdata=json.dumps(subscription),
-                                             method='PATCH')
+                res = self.__pcrest_doreq__("customers/%s/subscriptions/%s" %
+                                            (tid, sid),
+                                            postdata=json.dumps(subscription),
+                                            method='PATCH')
+                subscription = self.get_subscription(tid=tid, sid=sid)
+                if subscription["quantity"] == quantity:
+                    return res
+                else:
+                    raise ValueError('Unable to update quantity')
         else:
             raise ValueError('update_subscription_quantity \
                               requires tid and sid')
@@ -240,8 +271,7 @@ class pyOffice365():
 
         while True:
             data = self.__doreq__(users_path, querydata=querydata)
-            if isinstance(data, dict):
-                return None
+
             if 'userPrincipalName' in data:
                 rdata += [data]
             elif 'value' in data:
@@ -255,14 +285,11 @@ class pyOffice365():
 
         return rdata
 
-    def get_metadata(self):
-        return self.__doreq__("$metadata")
-
     def get_skus(self):
         return self.__doreq__("subscribedSkus")
 
     def create_user(self, userdata):
-        return self.__doreq__("users", json.dumps(userdata))
+        return self.__doreq__("users", postdata=json.dumps(userdata))
 
     def update_user(self, username, userdata):
         if '@' in username:

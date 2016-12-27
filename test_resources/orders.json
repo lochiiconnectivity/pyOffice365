@@ -1,0 +1,48 @@
+{
+  "totalCount": 1,
+  "items": [
+    {
+      "id": "49f7f7e4-02e9-4710-bfd4-56d8fedece98",
+      "referenceCustomerId": "edce3354-c108-4b40-8b32-7f2faff06564",
+      "billingCycle": "monthly",
+      "lineItems": [
+        {
+          "lineItemNumber": 0,
+          "offerId": "3f46c552-f208-4398-84fd-b281d4cba8b0",
+          "subscriptionId": "09155786-a2a0-46d6-8063-a44d07952018",
+          "friendlyName": "Office 365 Enterprise E3",
+          "quantity": 2,
+          "links": {
+            "subscription": {
+              "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/subscriptions/09155786-a2a0-46d6-8063-a44d07952018",
+              "method": "GET",
+              "headers": []
+            }
+          }
+        }
+      ],
+      "creationDate": "2016-03-06T15:30:24.81-08:00",
+      "links": {
+        "self": {
+          "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/orders/49f7f7e4-02e9-4710-bfd4-56d8fedece98",
+          "method": "GET",
+          "headers": []
+        }
+      },
+      "attributes": {
+        "etag": "686897696a7c876b7e",
+        "objectType": "Order"
+      }
+    }
+  ],
+  "links": {
+    "self": {
+      "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/orders",
+      "method": "GET",
+      "headers": []
+    }
+  },
+  "attributes": {
+    "objectType": "Collection"
+  }
+}

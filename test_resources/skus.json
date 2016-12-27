@@ -1,0 +1,26 @@
+{
+  "value": [
+    {
+      "skuId": "0764f96d-4604-459d-a3ea-dd7d7027fee9",
+      "servicePlans": [
+        {
+          "servicePlanName": "EXCHANGE_S_FOUNDATION",
+          "servicePlanId": "206b21a2-c0e5-48b9-ba2f-48fcfc38bfc5"
+        },
+        {
+          "servicePlanName": "VISIO_CLIENT_SUBSCRIPTION",
+          "servicePlanId": "efec70a6-570a-4ed5-a519-ac86465f7ff9"
+        }
+      ],
+      "objectId": "9622bff5-f8e1-4b3a-9ee4-08d674e069e8_0764f96d-4604-459d-a3ea-dd7d7027fee9",
+      "prepaidUnits": {
+        "warning": 0,
+        "enabled": 10,
+        "suspended": 0
+      },
+      "consumedUnits": 30,
+      "capabilityStatus": "Enabled",
+      "skuPartNumber": "VISIOCLIENT"
+    }
+  ]
+}

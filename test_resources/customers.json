@@ -1,0 +1,44 @@
+{
+  "totalCount": 1,
+  "items": [
+    {
+      "id": "edce3354-c108-4b40-8b32-7f2faff06564",
+      "companyProfile": {
+        "tenantId": "edce3354-c108-4b40-8b32-7f2faff06564",
+        "domain": "testcustomer.onmicrosoft.com",
+        "companyName": "Test Customer",
+        "links": {
+          "self": {
+            "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/profiles/company",
+            "method": "GET",
+            "headers": []
+          }
+        },
+        "attributes": {
+          "objectType": "CustomerCompanyProfile"
+        }
+      },
+      "relationshipToPartner": "reseller",
+      "links": {
+        "self": {
+          "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564",
+          "method": "GET",
+          "headers": []
+        }
+      },
+      "attributes": {
+        "objectType": "Customer"
+      }
+    }
+  ],
+  "links": {
+    "self": {
+      "uri": "/customers?size=1",
+      "method": "GET",
+      "headers": []
+    }
+  },
+  "attributes": {
+    "objectType": "Collection"
+  }
+}

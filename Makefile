@@ -8,6 +8,15 @@ clean-build:
 	rm --force --recursive dist/
 	rm --force --recursive *.egg-info
 
+test: clean-pyc
+	 py.test
+
+test3: clean-pyc
+	 py.test-3
+
+coverage:
+	 py.test --cov=.
+
 help:
 	@echo "    clean-pyc"
 	@echo "        Remove python artifacts."

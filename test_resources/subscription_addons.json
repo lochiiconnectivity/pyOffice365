@@ -1,0 +1,47 @@
+{
+  "totalCount": 1,
+  "items": [
+    {
+      "id": "81b91bee-c71d-4964-98c8-9e33d93b7c47",
+      "offerId": "2c6c3a47-5974-48df-908e-a229e14bcd88",
+      "offerName": "Skype for Business PSTN Conferencing",
+      "friendlyName": "",
+      "quantity": 2,
+      "unitType": "Licenses",
+      "parentSubscriptionId": "09155786-a2a0-46d6-8063-a44d07952018",
+      "creationDate": "2016-12-26T00:31:35.047Z",
+      "effectiveStartDate": "2016-12-26T00:00:00Z",
+      "commitmentEndDate": "2017-03-06T00:00:00Z",
+      "status": "active",
+      "autoRenewEnabled": true,
+      "billingType": "license",
+      "billingCycle": "monthly",
+      "contractType": "subscription",
+      "links": {
+        "offer": {
+          "uri": "/offers/2c6c3a47-5974-48df-908e-a229e14bcd88?country=US",
+          "method": "GET",
+          "headers": []
+        },
+        "parentSubscription": {
+          "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/subscriptions/09155786-a2a0-46d6-8063-a44d07952018",
+          "method": "GET",
+          "headers": []
+        },
+        "self": {
+          "uri": "/customers/edce3354-c108-4b40-8b32-7f2faff06564/subscriptions/81b91bee-c71d-4964-98c8-9e33d93b7c47",
+          "method": "GET",
+          "headers": []
+        }
+      },
+      "orderId": "d65433fc-fa38-48ed-87a6-b11b36bd0ad8",
+      "attributes": {
+        "etag": "686897696a7c876b7e",
+        "objectType": "Subscription"
+      }
+    }
+  ],
+  "attributes": {
+    "objectType": "Collection"
+  }
+}
