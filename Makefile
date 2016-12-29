@@ -17,6 +17,9 @@ test3: clean-pyc
 coverage:
 	 py.test --cov=.
 
+install:
+	 python setup.py install
+
 help:
 	@echo "    clean-pyc"
 	@echo "        Remove python artifacts."

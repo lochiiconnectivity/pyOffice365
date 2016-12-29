@@ -19,6 +19,8 @@ setup_requires= [
 ],
 
 install_requires = [
+    'setuptools>=31.0.0',
+    'six>=1.9',
     'simplejson',
 ]
 
