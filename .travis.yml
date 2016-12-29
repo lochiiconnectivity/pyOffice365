@@ -8,6 +8,6 @@ before_install:
     - pip install pytest pytest-cov
     - pip install coveralls
 install: make install
-script: make test
+script: make coverage
 after_success:
     - coveralls
