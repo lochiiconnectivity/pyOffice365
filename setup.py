@@ -30,13 +30,13 @@ tests_require = [
     'mock',
 ]
 
-license = 'Apache'
+license = 'Unknown'
 
 classifiers = [
     'Development Status :: 5 - Production / Stable',
     'Intended Audience :: Developers',
     'Topic :: Software Development :: Libraries :: Python Modules',
-    'License :: OSI Approved :: Apache Software License',
+    'License :: Unknown',
     'Programming Language :: Python :: 2',
     'Programming Language :: Python :: 2.6',
     'Programming Language :: Python :: 2.7',
