@@ -45,3 +45,6 @@ results = o.assign_license("example1", sku)
 print json.dumps(results, sort_keys=True, indent=4, separators=(',', ': '))
 
 ```
+[![Build Status](https://travis-ci.org/lochiiconnectivity/pyOffice365.svg?branch=master)](https://travis-ci.org/lochiiconnectivity/pyOffice365)
+
+[![Coverage Status](https://coveralls.io/repos/github/lochiiconnectivity/pyOffice365/badge.svg?branch=master)](https://coveralls.io/github/lochiiconnectivity/pyOffice365?branch=master)
