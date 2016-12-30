@@ -6,7 +6,7 @@ pyOffice365 Guide
 Getting Started
 ----------------
 
-pyOffice365 objectes are instantiated by simply calling ``pyoffice365(domain=domain, appid=appid, key=key)``
+pyOffice365 objects are instantiated by simply calling ``pyoffice365(domain=domain, appid=appid, key=key)``
 
 Example:
 
@@ -19,7 +19,7 @@ Example:
                                 key='c29tZSBzdHJpbmcgc29tZSBzdHJpbmcgc29tZSBzdHJpbmc=')
 
 
-The credentials should be an application suitable authorized into your Azure Active Directory
+The credentials should be an application suitably authorized into your Azure Active Directory
 with the permissions detailed in `<README.rst>`_ for the API and features you are trying to use.
 
 Managing your Tenant with GRAPH features
