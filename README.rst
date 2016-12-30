@@ -23,15 +23,6 @@ this libarary affords you.
 
 pyOffice365 requires Python 2.6, 2.7, 3.4, or 3.5.
 
-Installing from pip
--------------------
-
-pyOffice365 can be installed from pip like such:
-
-.. code-block:: bash
-
-  $ (sudo) pip install pyOffice365
-
 Installing from source
 ----------------------
 
