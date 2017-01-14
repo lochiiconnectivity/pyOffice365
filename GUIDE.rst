@@ -22,6 +22,11 @@ Example:
 The credentials should be an application suitably authorized into your Azure Active Directory
 with the permissions detailed in `<README.rst>`_ for the API and features you are trying to use.
 
+Responses are returned as **Python objects** (namely a nested dict).
+
+The structure of these objects is documented by showing the reader (by way of example),
+a representation of the object in *JSON*.
+
 Managing your Tenant with GRAPH features
 ========================================
 
