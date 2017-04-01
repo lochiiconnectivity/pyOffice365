@@ -1,7 +1,33 @@
+import io
+import os
+import re
 from setuptools import setup, find_packages
 
+# Functions for reading version out of package file, which maintains it
+
+
+def read(*names, **kwargs):
+    with io.open(
+        os.path.join(os.path.dirname(__file__), *names),
+        encoding=kwargs.get("encoding", "utf8")
+    ) as fp:
+        return fp.read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+
+# Setup variables
+
 name = 'pyOffice365'
-version = '1.0.0'
+package_file = 'pyOffice365.py'
+version = find_version(package_file)
 
 description = 'python module for managing Office365'
 
