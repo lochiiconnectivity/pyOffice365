@@ -304,8 +304,18 @@ class pyOffice365():
     def assign_license(self, username, sku=None,
                        disabledplans=None, remove=None):
 
+        # A single license sku can be added at a time
         add = [{"disabledPlans": disabledplans, "skuId": sku}] if sku else []
-        remove = [remove] if remove else []
+
+        # Either a single or multiple licenses can be removed at a time
+        if remove:
+            if type(remove) is str:
+                remove = [remove]
+            elif type(remove) is not list:
+                raise ValueError("removal type must be string or list")
+        else:
+            remove = []
+
         postData = {"addLicenses": add, "removeLicenses": remove}
 
         if '@' in username:
