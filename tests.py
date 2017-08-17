@@ -49,6 +49,10 @@ const.key = 'test'
 const.login_pattern = 'oauth2/token'
 const.access_token = 'test1234'
 
+# Manage Login
+const.manage_login_pattern = 'manage.office.com'
+const.manage_access_token = 'test1235'
+
 # PCRest Login
 const.pcrest_login_pattern = 'generatetoken'
 const.pcrest_access_token = 'test5678'
@@ -58,6 +62,11 @@ const.tenant_pattern = 'tenantDetails'
 const.tenant_response = json.loads(open('test_resources/tenant.json',
                                    'r').read())
 const.tenant_objid = 'f44b3eab-7135-4849-85fe-183919f17c9f'
+
+# Status
+const.status_pattern = 'ServiceComms/CurrentStatus'
+const.status_response = json.loads(open('test_resources/service_status.json',
+                                   'r').read())
 
 # Customers
 const.customers_pattern = 'customers'
@@ -139,16 +148,21 @@ def fake_urlopen(req):
     method = req.get_method()
 
     # Get data
-    data = req.data
+    data = req.data if req.data else ''
 
     # test login
-    if const.login_pattern in selector:
+
+    if const.manage_login_pattern in data:
+        return FakeResponse(
+                            body={'access_token': const.manage_access_token}
+                           )
+    elif const.login_pattern in selector:
         return FakeResponse(
                             body={'access_token': const.access_token}
                            )
 
     # Everything below requires us to be authenticated
-    # Either with GRAPH or PCREST
+    # Either with GRAPH, MANAGE or PCREST
 
     # GRAPH authenticated methods are below:
     if authorization == const.access_token:
@@ -175,6 +189,11 @@ def fake_urlopen(req):
             return FakeResponse(body=const.skus_response)
         else:
             raise ValueError("Unknown selector for GRAPH")
+
+    # MANAGE authenticated methods are below:
+    elif authorization == const.manage_access_token:
+        if const.status_pattern in selector:
+            return FakeResponse(body=const.status_response)
 
     # PCREST authenticated methods are below
     elif authorization == const.pcrest_access_token:
@@ -219,12 +238,28 @@ def test_internal_fakeresponse():
     assert fake_urlopen(fake_request).readlines() == [ "\"%s\"" % const.fake_response ]
 
 
-# Test login
+# Test MANAGE login
+def test_manage_login():
+
+    o.manage_login()
+
+    assert o.get_manage_access_token() == const.manage_access_token
+
+
+# Test GRAPH login
 def test_login():
 
     o.graph_login()
 
     assert o.get_access_token() == const.access_token
+
+
+# Test MANAGE login
+def test_manage_login():
+
+    o.manage_login()
+
+    assert o.get_manage_access_token() == const.manage_access_token
 
 
 # Test PCREST login
@@ -239,6 +274,12 @@ def test_pcrest_login():
 def test_tenant():
 
     assert o.get_tenant()['value'][0]['objectId'] == const.tenant_objid
+
+
+# Test Service Status
+def test_service_status():
+
+    assert o.get_service_status()['value'][0]['Status'] == 'ServiceOperational'
 
 
 # Test Get Customers

@@ -12,7 +12,7 @@ else:
     import urllib2
     import urllib
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
 
 class pyOffice365():
@@ -23,6 +23,8 @@ class pyOffice365():
     __pcrest_api_endpoint = 'https://api.partnercenter.microsoft.com'
     __pcrest_api_version = 'v1'
     __oauth2_api_endpoint = 'https://login.windows.net'
+    __manage_api_endpoint = 'https://manage.office.com'
+    __manage_api_version = 'v1.0'
 
     def __init__(self, debug_requests=False, debug_responses=False,
                  domain=None, appid=None, key=None, resource=None,
@@ -30,7 +32,9 @@ class pyOffice365():
                  graph_api_version=__graph_api_version,
                  pcrest_api_endpoint=__pcrest_api_endpoint,
                  pcrest_api_version=__pcrest_api_version,
-                 oauth_api_endpoint=__oauth2_api_endpoint):
+                 oauth_api_endpoint=__oauth2_api_endpoint,
+                 manage_api_version=__manage_api_version,
+                 manage_api_endpoint=__manage_api_endpoint):
 
         if not domain or not appid or not key:
             raise ValueError('Must provide domain, appid and key')
@@ -40,12 +44,15 @@ class pyOffice365():
         self.__graph_api_endpoint = graph_api_endpoint
         self.__graph_api_version = graph_api_version
         self.__oauth2_api_endpoint = oauth_api_endpoint
+        self.__manage_api_endpoint = manage_api_endpoint
+        self.__manage_api_version = manage_api_version
         self.__domain = domain
         self.__appid = appid
         self.__key = key
         self.__resource = resource
         self.__access_token = None
         self.__pcrest_access_token = None
+        self.__manage_access_token = None
         self.__customer_token = None
         self.__ms_tracking_id = uuid.uuid4()
 
@@ -83,6 +90,9 @@ class pyOffice365():
     def get_access_token(self):
         return self.__access_token
 
+    def get_manage_access_token(self):
+        return self.__manage_access_token
+
     def get_pcrest_access_token(self):
         return self.__pcrest_access_token
 
@@ -103,6 +113,32 @@ class pyOffice365():
         jdata = json.loads('\n'.join(data))
         if "access_token" in jdata:
             self.__pcrest_access_token = jdata["access_token"]
+
+    def manage_login(self):
+
+        resource = self.__manage_api_endpoint
+
+        postData = {
+            "grant_type": "client_credentials",
+            "resource": resource,
+            "client_id": "%s@%s" % (self.__appid, self.__domain),
+            "client_secret": self.__key,
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        req = urllib2.Request("%s/%s/oauth2/token?api-version=1.0" %
+                              (self.__oauth2_api_endpoint, self.__domain),
+                              urllib.urlencode(postData), headers)
+        u = urllib2.urlopen(req)
+        data = u.readlines()
+        if self.__debug_responses is True:
+            print(data)
+        jdata = json.loads('\n'.join(data))
+        if "access_token" in jdata:
+            self.__manage_access_token = jdata["access_token"]
+        else:
+            raise ValueError('Can not find access token, unable to log in')
 
     def __auth_header__(self, accept='application/json;odata=nometadata',
                         content_type='application/json;odata=nometadata',
@@ -134,6 +170,16 @@ class pyOffice365():
             self.__pcrest_api_version,
             "MS-CorrelationId": uuid.uuid4(),
             "X-Locale": locale
+        }
+
+    def __manage_auth_header__(self,
+                               accept='application/json;odata.metadata=none',
+                               authorization=None):
+        if authorization is None:
+            authorization = self.__manage_access_token
+        return {
+            "Authorization": "Bearer %s" % (authorization),
+            "Accept": accept,
         }
 
     def __doreq__(self, command, postdata=None, querydata={}, method=None):
@@ -181,6 +227,43 @@ class pyOffice365():
                               self.__pcrest_api_version, command,
                               urllib.urlencode(querydata)), data=postdata,
                               headers=self.__pcrest_auth_header__(
+                              authorization=token))
+
+        if method is not None:
+            req.get_method = lambda: method
+
+        try:
+            u = urllib2.urlopen(req)
+        except urllib2.HTTPError as e:
+            data = e.readlines()
+            if self.__debug_responses is True:
+                print(data)
+            try:
+                jdata = json.loads('\n'.join(data))
+            except:
+                jdata = data
+            return jdata
+
+        data = u.readlines()
+        if self.__debug_responses is True:
+            print(data)
+
+        if "totalCount" in data[0]:
+            jdata = json.loads(data[0])
+        else:
+            jdata = json.loads('\n'.join(data))
+
+        return jdata
+
+    def __manage_doreq__(self, command, postdata=None, querydata={},
+                         method=None, token=None):
+        if self.__manage_access_token is None:
+            self.manage_login()
+
+        req = urllib2.Request("%s/api/%s/%s/%s" % (self.__manage_api_endpoint,
+                              self.__manage_api_version, self.__domain,
+                              command), data=postdata,
+                              headers=self.__manage_auth_header__(
                               authorization=token))
 
         if method is not None:
@@ -289,6 +372,9 @@ class pyOffice365():
 
     def get_skus(self):
         return self.__doreq__("subscribedSkus")
+
+    def get_service_status(self):
+        return self.__manage_doreq__("ServiceComms/CurrentStatus")
 
     def create_user(self, userdata):
         return self.__doreq__("users", postdata=json.dumps(userdata))
