@@ -154,11 +154,13 @@ def fake_urlopen(req):
 
     if const.manage_login_pattern in data:
         return FakeResponse(
-                            body={'access_token': const.manage_access_token}
+                            body={'access_token': const.manage_access_token,
+                                  'expires_in': 3600}
                            )
     elif const.login_pattern in selector:
         return FakeResponse(
-                            body={'access_token': const.access_token}
+                            body={'access_token': const.access_token,
+                                  'expires_in': 3600}
                            )
 
     # Everything below requires us to be authenticated
@@ -170,7 +172,8 @@ def fake_urlopen(req):
         if const.pcrest_login_pattern in selector:
             return FakeResponse(
                                 body={'access_token':
-                                      const.pcrest_access_token}
+                                      const.pcrest_access_token,
+                                      'expires_in': 3600}
                                )
         elif const.tenant_pattern in selector:
             return FakeResponse(body=const.tenant_response)

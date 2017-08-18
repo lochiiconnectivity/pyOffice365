@@ -3,6 +3,7 @@
 import simplejson as json
 import re
 import sys
+import time
 import uuid
 
 if sys.version_info >= (3, 0):
@@ -12,7 +13,7 @@ else:
     import urllib2
     import urllib
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 class pyOffice365():
@@ -51,8 +52,11 @@ class pyOffice365():
         self.__key = key
         self.__resource = resource
         self.__access_token = None
+        self.__access_token_expires_on = 0
         self.__pcrest_access_token = None
+        self.__pcrest_access_token_expires_on = 0
         self.__manage_access_token = None
+        self.__manage_access_token_expires_on = 0
         self.__customer_token = None
         self.__ms_tracking_id = uuid.uuid4()
 
@@ -84,6 +88,10 @@ class pyOffice365():
         jdata = json.loads('\n'.join(data))
         if "access_token" in jdata:
             self.__access_token = jdata["access_token"]
+            self.__access_token_expires_on = (
+                                                int(time.time()) +
+                                                int(jdata["expires_in"])
+            )
         else:
             raise ValueError('Can not find access token, unable to log in')
 
@@ -113,6 +121,10 @@ class pyOffice365():
         jdata = json.loads('\n'.join(data))
         if "access_token" in jdata:
             self.__pcrest_access_token = jdata["access_token"]
+            self.__pcrest_access_token_expires_on = (
+                                                int(time.time()) +
+                                                int(jdata["expires_in"])
+            )
 
     def manage_login(self):
 
@@ -137,6 +149,10 @@ class pyOffice365():
         jdata = json.loads('\n'.join(data))
         if "access_token" in jdata:
             self.__manage_access_token = jdata["access_token"]
+            self.__manage_access_token_expires_on = (
+                                                int(time.time()) +
+                                                int(jdata["expires_in"])
+            )
         else:
             raise ValueError('Can not find access token, unable to log in')
 
@@ -185,7 +201,10 @@ class pyOffice365():
     def __doreq__(self, command, postdata=None, querydata={}, method=None):
         querydata['api-version'] = self.__graph_api_version
 
-        if self.__access_token is None:
+        if (
+            self.__access_token is None or
+            int(time.time()) >= self.__access_token_expires_on
+        ):
             self.graph_login()
 
         req = urllib2.Request("%s/%s/%s?%s" % (self.__graph_api_endpoint,
@@ -220,7 +239,10 @@ class pyOffice365():
 
     def __pcrest_doreq__(self, command, postdata=None, querydata={},
                          method=None, token=None):
-        if self.__pcrest_access_token is None:
+        if (
+            self.__pcrest_access_token is None or
+            int(time.time()) >= self.__pcrest_access_token_expires_on
+        ):
             self.pcrest_login()
 
         req = urllib2.Request("%s/%s/%s?%s" % (self.__pcrest_api_endpoint,
@@ -257,7 +279,10 @@ class pyOffice365():
 
     def __manage_doreq__(self, command, postdata=None, querydata={},
                          method=None, token=None):
-        if self.__manage_access_token is None:
+        if (
+            self.__manage_access_token is None or
+            int(time.time()) >= self.__manage_access_token_expires_on
+        ):
             self.manage_login()
 
         req = urllib2.Request("%s/api/%s/%s/%s" % (self.__manage_api_endpoint,
