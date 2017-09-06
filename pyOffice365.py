@@ -279,6 +279,11 @@ class pyOffice365():
 
     def __manage_doreq__(self, command, postdata=None, querydata={},
                          method=None, token=None):
+
+        if self.__debug_responses is True:
+            print("TT/MATE: %s/%s" % (int(time.time()),
+                                    self.__manage_access_token_expires_on))
+
         if (
             self.__manage_access_token is None or
             int(time.time()) >= self.__manage_access_token_expires_on
