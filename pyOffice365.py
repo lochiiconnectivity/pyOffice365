@@ -13,7 +13,7 @@ else:
     import urllib2
     import urllib
 
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 
 class pyOffice365():
