@@ -4,6 +4,12 @@
 .. image:: https://coveralls.io/repos/github/lochiiconnectivity/pyOffice365/badge.svg?branch=master
    :target: https://coveralls.io/github/lochiiconnectivity/pyOffice365?branch=master
 
+.. image:: https://pyup.io/repos/github/lochiiconnectivity/pyOffice365/shield.svg
+   :target: https://pyup.io
+
+.. image:: https://pyup.io/repos/github/lochiiconnectivity/pyOffice365/python-3-shield.svg
+   :target: https://pyup.io
+
 .. _pyOffice365:
 
 pyOffice365
@@ -21,7 +27,7 @@ pyOffice365 provides a framework for both:
 You need not be a reseller to take advantage of the user and license management
 this libarary affords you.
 
-pyOffice365 requires Python 2.6, 2.7, 3.4, or 3.5.
+pyOffice365 requires Python 2.7, 3.4, or 3.5.
 
 Installing from source
 ----------------------
